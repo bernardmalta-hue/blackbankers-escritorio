@@ -103,6 +103,10 @@ const MESA_GRANDE = [               // 4x3, mesa de madeira da copa
   [319, 320, 321, 322],
   [331, 332, 333, 334],
 ];
+const BALOES = [               // 2x2, marca provisoria do ponto do gongo
+  [95, 96],
+  [107, 108],
+];
 const FAIXA = [[1828, 1829, 1830, 1831, 1832]];  // 5x1, faixa na parede
 const MESA_REUNIAO = [              // 6x5, seis lugares
   [1496, 1497, 1496, 1497, 1496, 1497],
@@ -258,6 +262,7 @@ retangulo(colisoes, CORREDOR, 0);
 // Sao tapetes: o movel de verdade voce coloca por cima, no editor inline.
 retangulo(pisoAlt, { x: PLACAR.x, y: PLACAR.y, w: 6, h: 2 }, PISO_ALT);
 retangulo(pisoAlt, { x: GONGO.x, y: GONGO.y, w: 2, h: 2 }, PISO_ALT);
+carimbar(moveis, BALOES, GONGO.x, GONGO.y, { colide: false });
 retangulo(pisoAlt, { x: LIDERANCA.x, y: LIDERANCA.y + LIDERANCA.h - 2, w: 6, h: 2 }, PISO_ALT);
 [...MESAS_TIME_BLACK, ...MESAS_LIDERANCA].forEach((m) =>
   retangulo(pisoAlt, { x: m.x, y: m.y + 4, w: 4, h: 1 }, PISO_ALT)

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Metas</title>
+<link rel="stylesheet" href="comum.css" />
+<style>
+  /* Este painel fica na tela o expediente inteiro, num canto. Por isso e
+     mais compacto e mais discreto que os outros: informa de relance sem
+     competir com o jogo. */
+  .painel { gap: 9px; padding: 11px 13px; }
+  .mini { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .mini .v { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .mini .p { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sep { height: 1px; background: rgba(232,182,76,.16); }
+</style>
+</head>
+<body>
+<div class="painel">
+  <div class="topo" style="margin-bottom:-2px">
+    <p class="eyebrow">Metas Black Bankers</p>
+    <span class="demo" id="selo">exemplo</span>
+  </div>
+
+  <div>
+    <div class="mini">
+      <span class="rotulo">mês</span>
+      <span class="v" id="mes-valor">—</span>
+      <span class="p" id="mes-pct">—</span>
+    </div>
+    <div class="barra" id="mes-barra"><i style="width:0"></i></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div>
+    <div class="mini">
+      <span class="rotulo">hoje</span>
+      <span class="v" id="dia-valor">—</span>
+      <span class="p" id="dia-pct">—</span>
+    </div>
+    <div class="barra" id="dia-barra"><i style="width:0"></i></div>
+  </div>
+</div>
+
+<script type="module">
+import { buscar, ehDemo, reaisCurto, pct, faixa } from "./dados-demo.js";
+
+const $ = (id) => document.getElementById(id);
+
+function barra(el, p, classe) {
+  el.className = "barra " + classe;
+  el.firstElementChild.style.width = Math.min(p, 100) + "%";
+}
+
+async function pintar() {
+  const d = await buscar("time");
+
+  const pMes = pct(d.mesValor, d.mesMeta);
+  $("mes-valor").textContent = reaisCurto(d.mesValor);
+  $("mes-pct").textContent = pMes + "%";
+  $("mes-pct").className = "p " + faixa(pMes);
+  barra($("mes-barra"), pMes, faixa(pMes));
+
+  const pDia = pct(d.diaValor, d.diaMeta);
+  $("dia-valor").textContent = reaisCurto(d.diaValor);
+  $("dia-pct").textContent = pDia + "%";
+  $("dia-pct").className = "p " + faixa(pDia);
+  barra($("dia-barra"), pDia, faixa(pDia));
+
+  if (!ehDemo) $("selo")?.remove();
+}
+
+pintar();
+setInterval(pintar, 60000);
+</script>
+</body>
+</html>
