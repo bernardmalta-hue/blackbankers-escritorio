@@ -18,6 +18,7 @@ import { bootstrapExtra } from "@workadventure/scripting-api-extra";
 import mesas from "./mesas.json";
 import { FAMILIAS, familiaEscolhida, guardarEscolha, proximaFamilia, sortearArquivo, type Familia } from "./sons";
 import { sequenciaVenda, duracaoTotal, faixaPorValor, NOME_FAIXA, AGENDAMENTO, type Etapa } from "./escalas";
+import { prepararConfete, soltarConfete } from "./confete";
 
 type Mesa = { area: string; pessoa: string | null; time: string };
 type Comemoracao = { quem: string; time: string; arquivo: string };
@@ -35,6 +36,8 @@ type ComemoracaoRica = {
   titulo: string;
   etapas: Etapa[];
   duracao: number;
+  x: number; // em tiles, para o confete cair em volta de quem comemorou
+  y: number;
 };
 const DURACAO_FAIXA = 9000;
 
@@ -103,6 +106,16 @@ function celebrar(dados: Comemoracao) {
   }, DURACAO_FAIXA);
 }
 
+/* getPosition devolve pixels; o mapa raciocina em tiles de 32. */
+async function minhaPosicaoEmTiles(): Promise<{ x: number; y: number }> {
+  try {
+    const p = await WA.player.getPosition();
+    return { x: Math.round(p.x / 32), y: Math.round(p.y / 32) };
+  } catch {
+    return { x: 0, y: 0 };
+  }
+}
+
 function tocarSequencia(etapas: Etapa[]) {
   etapas.forEach((e) =>
     e.atrasoMs === 0
@@ -115,27 +128,31 @@ function tocarSequencia(etapas: Etapa[]) {
  * Venda de closer: mesma escala da TV ao vivo. O valor decide o tambor, e o
  * tambor decide quanto tempo a coisa toda dura.
  */
-export function comemorarVenda(quem: string, valor: number) {
+export async function comemorarVenda(quem: string, valor: number) {
   const { faixa, etapas } = sequenciaVenda(valor);
+  const onde = await minhaPosicaoEmTiles();
   const dados: ComemoracaoRica = {
     quem: quem || "Alguém",
     tipo: "venda",
     titulo: `${NOME_FAIXA[faixa]} — ${quem}`,
     etapas,
     duracao: duracaoTotal(faixa),
+    ...onde,
   };
   WA.event.broadcast(EVENTO_RICO, dados);
   celebrarRico(dados);
 }
 
 /* Agendamento de pre-vendas: som unico, faixa curta. */
-export function comemorarAgendamento(quem: string) {
+export async function comemorarAgendamento(quem: string) {
+  const onde = await minhaPosicaoEmTiles();
   const dados: ComemoracaoRica = {
     quem: quem || "Alguém",
     tipo: "agendamento",
-    titulo: `${quem} agendou`,
+    titulo: `${quem} agendou uma reunião`,
     etapas: [AGENDAMENTO],
     duracao: 5000,
+    ...onde,
   };
   WA.event.broadcast(EVENTO_RICO, dados);
   celebrarRico(dados);
@@ -143,6 +160,7 @@ export function comemorarAgendamento(quem: string) {
 
 function celebrarRico(d: ComemoracaoRica) {
   tocarSequencia(d.etapas);
+  soltarConfete(d.x, d.y);
   if (faixaAberta) return;
   faixaAberta = true;
   WA.ui.banner.openBanner({
@@ -289,6 +307,26 @@ WA.onInit()
       }
     };
     botaoSom(familiaEscolhida());
+
+    // Botao de agendar: e o evento que o pre-vendas dispara varias vezes por
+    // dia. Fica na barra porque exigir que a pessoa ande ate um lugar para
+    // registrar cada agendamento seria atrito demais.
+    try {
+      WA.ui.actionBar.addButton({
+        id: "agendei",
+        label: "Agendei",
+        bgColor: "#3fbf7f",
+        textColor: "#0d1a14",
+        toolTip: "Avisa a sala que você marcou uma reunião",
+        callback: () => comemorarAgendamento(eu),
+      });
+    } catch (e) {
+      console.warn("[Black Bankers] botao de agendamento indisponivel:", e);
+    }
+
+    prepararConfete().then((ok) =>
+      console.info("[Black Bankers] confete", ok ? "pronto" : "indisponivel")
+    );
 
     console.info(
       "[Black Bankers]", FAMILIAS.length, "familias de som | atual:", familiaEscolhida().nome

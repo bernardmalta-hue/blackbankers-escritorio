@@ -19,18 +19,18 @@ const path = require("path");
 // gongo no corredor entre as duas, copa na esquerda, salas de reuniao na
 // direita, sala grande embaixo.
 
-const W = 42;
-const H = 28;
+const W = 37;
+const H = 26;
 
-const COPA        = { x: 1,  y: 3,  w: 9,  h: 9 };
-const SALA_GRANDE = { x: 1,  y: 15, w: 9,  h: 9 };
-const TIME_BLACK  = { x: 12, y: 4,  w: 19, h: 8 };
-const CORREDOR    = { x: 12, y: 13, w: 19, h: 3 };
-const LIDERANCA   = { x: 12, y: 17, w: 19, h: 8 };
+const COPA        = { x: 1,  y: 3,  w: 9,  h: 8 };
+const SALA_GRANDE = { x: 1,  y: 13, w: 9,  h: 9 };
+const TIME_BLACK  = { x: 12, y: 4,  w: 16, h: 8 };
+const CORREDOR    = { x: 12, y: 13, w: 16, h: 3 };
+const LIDERANCA   = { x: 12, y: 17, w: 16, h: 6 };
 const REUNIOES    = [
-  { x: 33, y: 3,  w: 7, h: 6 },
-  { x: 33, y: 11, w: 7, h: 6 },
-  { x: 33, y: 19, w: 7, h: 6 },
+  { x: 29, y: 3,  w: 7, h: 6 },
+  { x: 29, y: 10, w: 7, h: 6 },
+  { x: 29, y: 17, w: 7, h: 6 },
 ];
 
 // Onde cada pessoa senta, e de quem e a mesa.
@@ -40,24 +40,24 @@ const REUNIOES    = [
 // individual. Deixe em null enquanto nao souber — a mesa vira livre.
 const MESAS_TIME_BLACK = [
   { x: 13, y: 5, pessoa: "Rudi Reis" },
-  { x: 18, y: 5, pessoa: "Mari" },
-  { x: 23, y: 5, pessoa: null },
-  { x: 28, y: 5, pessoa: null },
-  { x: 13, y: 9, pessoa: null },
-  { x: 18, y: 9, pessoa: null },
-  { x: 23, y: 9, pessoa: null },
-  { x: 28, y: 9, pessoa: null },
+  { x: 17, y: 5, pessoa: "Mari" },
+  { x: 21, y: 5, pessoa: null },
+  { x: 25, y: 5, pessoa: null },
+  { x: 13, y: 8, pessoa: null },
+  { x: 17, y: 8, pessoa: null },
+  { x: 21, y: 8, pessoa: null },
+  { x: 25, y: 8, pessoa: null },
 ];
 const MESAS_LIDERANCA = [
   { x: 13, y: 18, pessoa: "Raphinha" },
-  { x: 18, y: 18, pessoa: "Testa" },
-  { x: 23, y: 18, pessoa: "Tati Arruda" },
-  { x: 28, y: 18, pessoa: "Bernard Malta" },
+  { x: 17, y: 18, pessoa: "Testa" },
+  { x: 21, y: 18, pessoa: "Tati Arruda" },
+  { x: 25, y: 18, pessoa: "Bernard Malta" },
 ];
 
-const GONGO   = { x: 19, y: 13 };
-const PLACAR  = { x: 23, y: 13 };
-const SPAWN   = { x: 20, y: 15 };
+const GONGO   = { x: 17, y: 13 };
+const PLACAR  = { x: 21, y: 13 };
+const SPAWN   = { x: 18, y: 15 };
 
 // ---------------------------------------------------------------- TILES
 const PISO        = 725;   // piso interno principal
@@ -209,9 +209,9 @@ for (let y = 3; y < H - 1; y++) {
 }
 
 // 3. divisorias internas
-murar(COPA, [[10, 7], [10, 8]]);
-murar(SALA_GRANDE, [[10, 19], [10, 20]]);
-REUNIOES.forEach((r) => murar(r, [[32, r.y + 2], [32, r.y + 3]]));
+murar(COPA, [[10, 6], [10, 7]]);
+murar(SALA_GRANDE, [[10, 17], [10, 18]]);
+REUNIOES.forEach((r) => murar(r, [[28, r.y + 2], [28, r.y + 3]]));
 
 // 4. carpete cinza sob as areas de trabalho, como na sala do Gather
 retangulo(pisoAlt, { x: TIME_BLACK.x, y: TIME_BLACK.y, w: TIME_BLACK.w, h: TIME_BLACK.h }, PISO_ALT);
@@ -237,15 +237,15 @@ carimbar(moveis, MESA_CENTRO, COPA.x + 5, COPA.y + 6, { colide: false });
 carimbar(moveis, PLANTA, COPA.x + 8, COPA.y + 1);
 
 // 8. corredor de cima: quadro, impressora, estantes e plantas
-carimbar(moveis, QUADRO, 14, 3);
-carimbar(moveis, QUADRO, 27, 3);
-carimbar(moveis, IMPRESSORA, 20, 3);
+carimbar(moveis, QUADRO, 13, 3);
+carimbar(moveis, QUADRO, 24, 3);
+carimbar(moveis, IMPRESSORA, 19, 3);
 carimbar(moveis, PLANTA, 12, 3);
-carimbar(moveis, PLANTA, 30, 3);
-carimbar(moveis, FAIXA, 23, 3, { colide: false });
+carimbar(moveis, PLANTA, 27, 3);
+carimbar(moveis, FAIXA, 22, 3, { colide: false });
 
 // 9. plantas espalhadas pelo salao
-[[12, 12], [30, 12], [12, 25], [30, 25], [12, 16], [30, 16]].forEach(([x, y]) =>
+[[12, 11], [27, 11], [12, 23], [27, 23], [12, 16], [27, 16]].forEach(([x, y]) =>
   carimbar(moveis, PLANTA, x, y)
 );
 
@@ -355,6 +355,13 @@ const mapa = {
 let lid = 1;
 (function numerar(ls) { ls.forEach((l) => { l.id = lid++; if (l.layers) numerar(l.layers); }); })(mapa.layers);
 mapa.nextlayerid = lid;
+
+// Coordenadas que o script do mapa precisa conhecer. Emitidas aqui para
+// nao virarem numero magico duplicado em dois arquivos.
+fs.writeFileSync(
+  path.join(__dirname, "..", "src", "pontos.json"),
+  JSON.stringify({ gongo: GONGO, placar: PLACAR, spawn: SPAWN }, null, 1)
+);
 
 const destino = path.join(__dirname, "..", "escritorio.tmj");
 fs.writeFileSync(destino, JSON.stringify(mapa, null, 1));
