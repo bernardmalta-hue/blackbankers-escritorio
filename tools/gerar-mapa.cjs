@@ -323,7 +323,8 @@ const mapa = {
   properties: [
     { name: "mapName", type: "string", value: "Black Bankers" },
     { name: "mapDescription", type: "string", value: "Escritorio virtual do time comercial Black Bankers" },
-    { name: "mapImage", type: "string", value: "escritorio.png" },
+    // Sem mapImage por enquanto: o otimizador nao gera miniatura, e apontar
+    // para um arquivo inexistente deixa icone quebrado na lista de salas.
     { name: "mapCopyright", type: "string", value: "Tilesets: WorkAdventure (https://WorkAdventu.re) - CC-BY-SA 3.0" },
     { name: "script", type: "string", value: "src/main.ts" },
   ],
