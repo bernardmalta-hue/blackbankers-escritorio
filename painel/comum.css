@@ -1,0 +1,125 @@
+/* Identidade Black Bankers: preto, dourado, verde de meta batida.
+   Usado pelos tres paineis. */
+
+:root {
+  --preto: #0b0a08;
+  --carvao: #14120e;
+  --borda: #2e2718;
+  --ouro: #e8b64c;
+  --ouro-fraco: #8a6b2e;
+  --verde: #3fbf7f;
+  --brasa: #c2554a;
+  --texto: #efe7d6;
+  --apagado: #9a8f79;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--preto);
+  color: var(--texto);
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+.painel {
+  height: 100%;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 8px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ouro-fraco);
+  margin: 0;
+}
+
+.titulo { font-size: 15px; font-weight: 600; margin: 0; }
+
+.numero {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ouro);
+  letter-spacing: -0.02em;
+}
+
+.numero.pequeno { font-size: 24px; }
+
+.linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pct { font-size: 22px; font-weight: 600; }
+.pct.ok { color: var(--verde); }
+.pct.atras { color: var(--brasa); }
+.pct.ritmo { color: var(--ouro); }
+
+.barra {
+  height: 7px;
+  background: var(--carvao);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.barra > i {
+  display: block;
+  height: 100%;
+  background: var(--ouro);
+  border-radius: 4px;
+}
+.barra.ok > i { background: var(--verde); }
+.barra.atras > i { background: var(--brasa); }
+
+.rotulo { font-size: 11px; color: var(--apagado); }
+
+.cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+}
+.cartao {
+  background: var(--carvao);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.cartao .v { font-size: 18px; font-weight: 600; }
+.cartao .r { font-size: 10px; color: var(--apagado); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.rodape {
+  margin-top: auto;
+  font-size: 10px;
+  color: var(--apagado);
+  border-top: 1px solid var(--borda);
+  padding-top: 7px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.demo {
+  background: var(--brasa);
+  color: #2a0f0c;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+}

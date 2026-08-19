@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meus números</title>
+<link rel="stylesheet" href="comum.css" />
+</head>
+<body>
+<div class="painel">
+  <div class="topo">
+    <div>
+      <p class="eyebrow">Seus números</p>
+      <p class="titulo" id="nome">—</p>
+    </div>
+    <span class="demo" id="selo">exemplo</span>
+  </div>
+
+  <div>
+    <div class="linha">
+      <span class="numero" id="valor">—</span>
+      <span class="pct" id="pct">—</span>
+    </div>
+    <div class="barra" id="barra"><i style="width:0"></i></div>
+    <div class="rotulo" style="margin-top:5px">meta do mês <span id="meta">—</span></div>
+  </div>
+
+  <div class="cartoes">
+    <div class="cartao"><div class="v" id="vendas">—</div><div class="r">vendas</div></div>
+    <div class="cartao"><div class="v" id="posicao">—</div><div class="r">no ranking</div></div>
+    <div class="cartao"><div class="v" id="falta">—</div><div class="r">falta p/ meta</div></div>
+  </div>
+
+  <div class="rodape">
+    <span id="privado">só você vê este painel</span>
+    <span id="atualizado">—</span>
+  </div>
+</div>
+
+<script type="module">
+import { buscarPessoa, ehDemo, reais, reaisCurto, pct, faixa } from "./dados-demo.js";
+
+const $ = (id) => document.getElementById(id);
+const nome = new URLSearchParams(location.search).get("nome") || "";
+
+async function pintar() {
+  $("nome").textContent = nome || "sem nome";
+  const d = await buscarPessoa(nome);
+
+  if (!d) {
+    $("valor").textContent = "—";
+    $("pct").textContent = "";
+    $("privado").textContent = "mesa sem dono definido";
+    return;
+  }
+
+  const p = pct(d.valor, d.meta);
+  const classe = faixa(p);
+
+  $("valor").textContent = reais(d.valor);
+  $("pct").textContent = p + "%";
+  $("pct").className = "pct " + classe;
+  $("meta").textContent = reaisCurto(d.meta);
+  $("barra").className = "barra " + classe;
+  $("barra").firstElementChild.style.width = Math.min(p, 100) + "%";
+
+  $("vendas").textContent = d.vendas;
+  $("posicao").textContent = d.posicao + "º";
+  const falta = d.meta - d.valor;
+  $("falta").textContent = falta > 0 ? reaisCurto(falta) : "bateu";
+
+  $("atualizado").textContent = new Date().toLocaleTimeString("pt-BR", {
+    hour: "2-digit", minute: "2-digit",
+  });
+  if (!ehDemo) $("selo").remove();
+}
+
+pintar();
+setInterval(pintar, 60000);
+</script>
+</body>
+</html>
