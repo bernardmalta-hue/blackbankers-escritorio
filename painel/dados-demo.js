@@ -54,8 +54,10 @@ export const ehDemo = true;
 export const reais = (n) =>
   "R$ " + Math.round(n).toLocaleString("pt-BR");
 
+// So abrevia acima de 100 mil. Abaixo disso o arredondamento para milhar
+// perde informacao que importa: um ticket de R$ 5.179 nao pode virar "R$ 5K".
 export const reaisCurto = (n) =>
-  n >= 1000 ? "R$ " + Math.round(n / 1000) + "K" : reais(n);
+  n >= 100000 ? "R$ " + Math.round(n / 1000) + "K" : reais(n);
 
 export const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 
