@@ -16,16 +16,26 @@
 
 import { bootstrapExtra } from "@workadventure/scripting-api-extra";
 import mesas from "./mesas.json";
-import { SONS, somEscolhido, guardarEscolha, proximoSom, somPorId, type Som } from "./sons";
+import { FAMILIAS, familiaEscolhida, guardarEscolha, proximaFamilia, sortearArquivo, type Familia } from "./sons";
+import { sequenciaVenda, duracaoTotal, faixaPorValor, NOME_FAIXA, AGENDAMENTO, type Etapa } from "./escalas";
 
 type Mesa = { area: string; pessoa: string | null; time: string };
-type Comemoracao = { quem: string; time: string; som: string };
+type Comemoracao = { quem: string; time: string; arquivo: string };
 
 // A raiz do mapa so pode ser lida depois do onInit. O script roda a partir
 // de assets/, entao caminho relativo apontaria para o lugar errado.
 let RAIZ = "";
 
 const EVENTO = "black-bankers-comemoracao";
+const EVENTO_RICO = "black-bankers-venda";
+
+type ComemoracaoRica = {
+  quem: string;
+  tipo: "venda" | "agendamento";
+  titulo: string;
+  etapas: Etapa[];
+  duracao: number;
+};
 const DURACAO_FAIXA = 9000;
 
 // ------------------------------------------------------------------ paineis
@@ -66,17 +76,17 @@ function fecharPainel(chave: string) {
 const carregados = new Map<string, ReturnType<typeof WA.sound.loadSound>>();
 let faixaAberta = false;
 
-function tocar(som: Som, volume = 0.55) {
-  let audio = carregados.get(som.id);
+function tocar(arquivo: string, volume = 0.55) {
+  let audio = carregados.get(arquivo);
   if (!audio) {
-    audio = WA.sound.loadSound(RAIZ + "som/" + som.arquivo);
-    carregados.set(som.id, audio);
+    audio = WA.sound.loadSound(RAIZ + "som/" + arquivo);
+    carregados.set(arquivo, audio);
   }
   audio.play({ volume });
 }
 
 function celebrar(dados: Comemoracao) {
-  tocar(somPorId(dados.som));
+  tocar(dados.arquivo);
 
   if (faixaAberta) return;
   faixaAberta = true;
@@ -93,8 +103,64 @@ function celebrar(dados: Comemoracao) {
   }, DURACAO_FAIXA);
 }
 
+function tocarSequencia(etapas: Etapa[]) {
+  etapas.forEach((e) =>
+    e.atrasoMs === 0
+      ? tocar(e.arquivo, e.volume)
+      : window.setTimeout(() => tocar(e.arquivo, e.volume), e.atrasoMs)
+  );
+}
+
+/*
+ * Venda de closer: mesma escala da TV ao vivo. O valor decide o tambor, e o
+ * tambor decide quanto tempo a coisa toda dura.
+ */
+export function comemorarVenda(quem: string, valor: number) {
+  const { faixa, etapas } = sequenciaVenda(valor);
+  const dados: ComemoracaoRica = {
+    quem: quem || "Alguém",
+    tipo: "venda",
+    titulo: `${NOME_FAIXA[faixa]} — ${quem}`,
+    etapas,
+    duracao: duracaoTotal(faixa),
+  };
+  WA.event.broadcast(EVENTO_RICO, dados);
+  celebrarRico(dados);
+}
+
+/* Agendamento de pre-vendas: som unico, faixa curta. */
+export function comemorarAgendamento(quem: string) {
+  const dados: ComemoracaoRica = {
+    quem: quem || "Alguém",
+    tipo: "agendamento",
+    titulo: `${quem} agendou`,
+    etapas: [AGENDAMENTO],
+    duracao: 5000,
+  };
+  WA.event.broadcast(EVENTO_RICO, dados);
+  celebrarRico(dados);
+}
+
+function celebrarRico(d: ComemoracaoRica) {
+  tocarSequencia(d.etapas);
+  if (faixaAberta) return;
+  faixaAberta = true;
+  WA.ui.banner.openBanner({
+    id: "comemoracao",
+    text: d.titulo,
+    bgColor: d.tipo === "venda" ? "#e8b64c" : "#3fbf7f",
+    textColor: "#14120e",
+    closable: true,
+  });
+  window.setTimeout(() => {
+    WA.ui.banner.closeBanner();
+    faixaAberta = false;
+  }, d.duracao);
+}
+
 function comemorar(quem: string, time: string) {
-  const dados: Comemoracao = { quem: quem || "Alguém", time, som: somEscolhido().id };
+  // sorteia na hora e manda o arquivo junto, para todos ouvirem o mesmo
+  const dados: Comemoracao = { quem: quem || "Alguém", time, arquivo: sortearArquivo(familiaEscolhida()) };
   WA.event.broadcast(EVENTO, dados);
   celebrar(dados); // quem tocou tambem ve, sem esperar o retorno do servidor
 }
@@ -129,7 +195,7 @@ function ligarMesa(mesa: Mesa, eu: string) {
       );
     }
     acao = WA.ui.displayActionMessage({
-      message: `Aperte ESPAÇO para comemorar (${somEscolhido().nome})`,
+      message: `Aperte ESPAÇO para comemorar (${familiaEscolhida().nome})`,
       callback: () => comemorar(eu, mesa.time),
     });
   });
@@ -177,7 +243,7 @@ WA.onInit()
     let acaoGongo: { remove: () => void } | undefined;
     WA.room.area.onEnter("gongo").subscribe(() => {
       acaoGongo = WA.ui.displayActionMessage({
-        message: `Aperte ESPAÇO para bater o gongo (${somEscolhido().nome})`,
+        message: `Aperte ESPAÇO para bater o gongo (${familiaEscolhida().nome})`,
         callback: () => comemorar(eu, "sala"),
       });
     });
@@ -191,18 +257,29 @@ WA.onInit()
 
     // 6. Comemoracao disparada por outra pessoa
     WA.event.on(EVENTO).subscribe((evento) => celebrar(evento.data as Comemoracao));
+    WA.event.on(EVENTO_RICO).subscribe((evento) => celebrarRico(evento.data as ComemoracaoRica));
+
+    // Ganchos para o dia em que o Supabase estiver ligado. Por enquanto dao
+    // para testar a escala inteira pelo console do navegador:
+    //   __bb.venda("Rudi Reis", 12000)   -> lendaria
+    //   __bb.agendamento("Mari")
+    (window as unknown as Record<string, unknown>).__bb = {
+      venda: (quem: string, valor: number) => comemorarVenda(quem, valor),
+      agendamento: (quem: string) => comemorarAgendamento(quem),
+      faixa: (valor: number) => faixaPorValor(valor),
+    };
 
     // 7. Botao para escolher o som: cada clique passa para o proximo da lista
     //    e toca uma previa, para a pessoa ouvir antes de decidir.
-    const botaoSom = (som: Som) => {
+    const botaoSom = (familia: Familia) => {
       try {
         WA.ui.actionBar.addButton({
           id: "escolher-som",
-          label: `Som: ${som.nome}`,
+          label: `Som: ${familia.nome}`,
           callback: () => {
-            const novo = proximoSom(somEscolhido());
+            const novo = proximaFamilia(familiaEscolhida());
             guardarEscolha(novo.id);
-            tocar(novo, 0.4); // previa, para ouvir antes de decidir
+            tocar(sortearArquivo(novo), 0.4); // previa, para ouvir antes de decidir
             WA.ui.actionBar.removeButton("escolher-som");
             botaoSom(novo);
           },
@@ -211,10 +288,10 @@ WA.onInit()
         console.warn("[Black Bankers] barra de acao indisponivel:", e);
       }
     };
-    botaoSom(somEscolhido());
+    botaoSom(familiaEscolhida());
 
     console.info(
-      "[Black Bankers]", SONS.length, "sons disponiveis | atual:", somEscolhido().nome
+      "[Black Bankers]", FAMILIAS.length, "familias de som | atual:", familiaEscolhida().nome
     );
 
     bootstrapExtra()
