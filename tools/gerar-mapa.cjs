@@ -77,13 +77,34 @@ const P_T         = 535;   // T: parede interna encontrando o topo
 const ZONA_START  = 2;     // WA_Special_Zones
 const ZONA_COLL   = 3;
 
-// Carimbos extraidos do office.tmj (null = celula vazia)
-const BAIA = [                      // 4x4, duas pessoas frente a frente
-  [1494, 1569, 1569, 1495],
-  [null, 1569, 1569, null],
-  [1494, 1569, 1569, 1495],
-  [null, 1579, 1579, null],
+// Carimbos extraidos do office.tmj e do conference.tmj do starter kit.
+// Sao combinacoes que ja renderizam certo nos mapas oficiais.
+
+const MESA = [                      // 3x2, mesa de escritorio individual
+  [1652, 1653, 1654],
+  [1662, 1663, 1664],
 ];
+const CADEIRA = [[1474]];           // cadeira de escritorio, de frente pra mesa
+const PLANTA = [[91], [103]];       // 1x2
+const IMPRESSORA = [                // 3x2
+  [2147483785, 2147483784, 2147483783],
+  [2147483795, 2147483794, 2147483793],
+];
+const QUADRO = [                    // 3x3, quadro branco
+  [142, 143, 144],
+  [152, 153, 154],
+  [162, 163, 164],
+];
+const MESA_CENTRO = [               // 2x2, mesinha de centro
+  [1602, 1603],
+  [1612, 1613],
+];
+const MESA_GRANDE = [               // 4x3, mesa de madeira da copa
+  [307, 308, 309, 310],
+  [319, 320, 321, 322],
+  [331, 332, 333, 334],
+];
+const FAIXA = [[1828, 1829, 1830, 1831, 1832]];  // 5x1, faixa na parede
 const MESA_REUNIAO = [              // 6x5, seis lugares
   [1496, 1497, 1496, 1497, 1496, 1497],
   [1509, 1510, 1509, 1510, 1509, 1510],
@@ -189,16 +210,41 @@ murar(COPA, [[11, 8], [11, 9]]);
 murar(SALA_GRANDE, [[11, 30], [11, 31]]);
 REUNIOES.forEach((r, i) => murar(r, [[38, r.y + 2], [38, r.y + 3]]));
 
-// 4. mesas de trabalho
-[...MESAS_TIME_BLACK, ...MESAS_LIDERANCA].forEach((m) => carimbar(moveis, BAIA, m.x, m.y));
+// 4. carpete cinza sob as areas de trabalho, como na sala do Gather
+retangulo(pisoAlt, { x: TIME_BLACK.x, y: TIME_BLACK.y, w: TIME_BLACK.w, h: TIME_BLACK.h }, PISO_ALT);
+retangulo(pisoAlt, { x: LIDERANCA.x, y: LIDERANCA.y, w: LIDERANCA.w, h: LIDERANCA.h }, PISO_ALT);
 
-// 5. mobilia das salas
+// 5. estacoes de trabalho: mesa individual com cadeira
+[...MESAS_TIME_BLACK, ...MESAS_LIDERANCA].forEach((m) => {
+  carimbar(moveis, MESA, m.x, m.y);
+  carimbar(moveis, CADEIRA, m.x + 1, m.y + 2, { colide: false });
+});
+
+// 6. salas de reuniao e sala grande
 REUNIOES.forEach((r) => carimbar(moveis, MESA_REUNIAO, r.x + 2, r.y + 1));
+REUNIOES.forEach((r) => carimbar(moveis, PLANTA, r.x + r.w - 2, r.y + 1));
 carimbar(moveis, MESA_REUNIAO, SALA_GRANDE.x + 2, SALA_GRANDE.y + 2);
-carimbar(moveis, BALCAO, COPA.x + 1, COPA.y + 1);
-carimbar(moveis, SOFA, COPA.x + 4, COPA.y + 8);
-carimbar(moveis, ESTANTE, 34, 3);
-carimbar(moveis, ESTANTE, 17, 3);
+carimbar(moveis, QUADRO, SALA_GRANDE.x + 3, SALA_GRANDE.y - 1);
+
+// 7. copa: balcao, mesa de refeicao e sofa
+carimbar(moveis, BALCAO, COPA.x, COPA.y);
+carimbar(moveis, MESA_GRANDE, COPA.x + 4, COPA.y + 2);
+carimbar(moveis, SOFA, COPA.x + 3, COPA.y + 8);
+carimbar(moveis, MESA_CENTRO, COPA.x + 4, COPA.y + 10, { colide: false });
+carimbar(moveis, PLANTA, COPA.x + 8, COPA.y + 1);
+
+// 8. corredor de cima: quadro, impressora, estantes e plantas
+carimbar(moveis, QUADRO, 16, 3);
+carimbar(moveis, QUADRO, 30, 3);
+carimbar(moveis, IMPRESSORA, 22, 3);
+carimbar(moveis, PLANTA, 13, 3);
+carimbar(moveis, PLANTA, 36, 3);
+carimbar(moveis, FAIXA, 24, 3, { colide: false });
+
+// 9. plantas espalhadas pelo salao
+[[13, 14], [36, 14], [13, 29], [36, 29], [13, 19], [36, 19]].forEach(([x, y]) =>
+  carimbar(moveis, PLANTA, x, y)
+);
 
 // 6. spawn
 por(inicio, SPAWN.x, SPAWN.y, ZONA_START);
@@ -207,6 +253,16 @@ por(inicio, SPAWN.x + 1, SPAWN.y, ZONA_START);
 
 // 7. o corredor central e o gongo ficam livres de colisao
 retangulo(colisoes, CORREDOR, 0);
+
+// 8. marcas no chao onde ficam os pontos interativos.
+// Sem isso o painel e o gongo sao areas invisiveis e ninguem acha.
+// Sao tapetes: o movel de verdade voce coloca por cima, no editor inline.
+retangulo(pisoAlt, { x: PLACAR.x, y: PLACAR.y, w: 6, h: 2 }, PISO_ALT);
+retangulo(pisoAlt, { x: GONGO.x, y: GONGO.y, w: 2, h: 2 }, PISO_ALT);
+retangulo(pisoAlt, { x: LIDERANCA.x, y: LIDERANCA.y + LIDERANCA.h - 2, w: 6, h: 2 }, PISO_ALT);
+[...MESAS_TIME_BLACK, ...MESAS_LIDERANCA].forEach((m) =>
+  retangulo(pisoAlt, { x: m.x, y: m.y + 4, w: 4, h: 1 }, PISO_ALT)
+);
 
 // ---------------------------------------------------------------- AREAS
 // Objetos nomeados. O script do mapa acha cada um pelo nome e desenha a placa.
