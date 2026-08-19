@@ -9,7 +9,8 @@
     "buildmap": "tsc && vite build --config buildmap.vite.config.ts",
     "preview": "vite preview --config buildmap.vite.config.ts --outDir dist",
     "upload": "npm run buildmap && upload-wa-map",
-    "upload-only": "upload-wa-map"
+    "upload-only": "upload-wa-map",
+    "publicar": "npm run buildmap && node tools/corrigir-caminhos.cjs && upload-wa-map"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

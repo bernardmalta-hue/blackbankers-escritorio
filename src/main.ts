@@ -23,9 +23,11 @@ import mesas from "./mesas.json";
 
 type Mesa = { area: string; pessoa: string | null; time: string };
 
-const BASE = "painel/";
-const SOM_BUZINA = "som/buzina.wav";
-const SOM_GONGO = "som/gongo.wav";
+// O script roda a partir de assets/, e os paineis e sons ficam na raiz do
+// mapa. Caminho relativo apontaria para assets/painel/... e daria 404, entao
+// montamos o endereco absoluto a partir de onde o proprio mapa esta.
+// So da para ler WA.room.mapURL depois do onInit, por isso e preenchido la.
+let RAIZ = "";
 const EVENTO = "black-bankers-comemoracao";
 const DURACAO_FAIXA = 9000;
 
@@ -42,7 +44,7 @@ async function abrirPainel(
 ) {
   if (abertos.has(chave)) return;
   const site = await WA.ui.website.open({
-    url: BASE + arquivo,
+    url: RAIZ + "painel/" + arquivo,
     position: { vertical: posicao.vertical, horizontal: posicao.horizontal },
     size: tamanho,
     visible: true,
@@ -123,11 +125,12 @@ function ligarMesa(mesa: Mesa, eu: string) {
 
 WA.onInit()
   .then(() => {
+    RAIZ = WA.room.mapURL.replace(/[^/]*$/, "");
     const eu = WA.player.name ?? "";
-    console.info("[Black Bankers] escritorio pronto para", eu);
+    console.info("[Black Bankers] escritorio pronto para", eu, "| raiz:", RAIZ);
 
-    gongo = WA.sound.loadSound(SOM_GONGO);
-    buzina = WA.sound.loadSound(SOM_BUZINA);
+    gongo = WA.sound.loadSound(RAIZ + "som/gongo.wav");
+    buzina = WA.sound.loadSound(RAIZ + "som/buzina.wav");
 
     // Painel do time, no salao
     WA.room.area.onEnter("placar-time").subscribe(() =>
