@@ -19,19 +19,18 @@ const path = require("path");
 // gongo no corredor entre as duas, copa na esquerda, salas de reuniao na
 // direita, sala grande embaixo.
 
-const W = 50;
-const H = 38;
+const W = 42;
+const H = 28;
 
-const COPA        = { x: 1,  y: 3,  w: 10, h: 12 };
-const TIME_BLACK  = { x: 13, y: 4,  w: 24, h: 11 };
-const CORREDOR    = { x: 13, y: 16, w: 24, h: 4  };
-const LIDERANCA   = { x: 13, y: 21, w: 24, h: 9  };
-const SALA_GRANDE = { x: 1,  y: 26, w: 10, h: 10 };
+const COPA        = { x: 1,  y: 3,  w: 9,  h: 9 };
+const SALA_GRANDE = { x: 1,  y: 15, w: 9,  h: 9 };
+const TIME_BLACK  = { x: 12, y: 4,  w: 19, h: 8 };
+const CORREDOR    = { x: 12, y: 13, w: 19, h: 3 };
+const LIDERANCA   = { x: 12, y: 17, w: 19, h: 8 };
 const REUNIOES    = [
-  { x: 39, y: 3,  w: 10, h: 7 },
-  { x: 39, y: 11, w: 10, h: 7 },
-  { x: 39, y: 19, w: 10, h: 7 },
-  { x: 39, y: 27, w: 10, h: 7 },
+  { x: 33, y: 3,  w: 7, h: 6 },
+  { x: 33, y: 11, w: 7, h: 6 },
+  { x: 33, y: 19, w: 7, h: 6 },
 ];
 
 // Onde cada pessoa senta, e de quem e a mesa.
@@ -40,25 +39,25 @@ const REUNIOES    = [
 // WorkAdventure. E o que o script usa para decidir de quem e o painel
 // individual. Deixe em null enquanto nao souber — a mesa vira livre.
 const MESAS_TIME_BLACK = [
-  { x: 15, y: 5,  pessoa: "Rudi Reis" },
-  { x: 21, y: 5,  pessoa: "Mari" },
-  { x: 27, y: 5,  pessoa: null },
-  { x: 33, y: 5,  pessoa: null },
-  { x: 15, y: 11, pessoa: null },
-  { x: 21, y: 11, pessoa: null },
-  { x: 27, y: 11, pessoa: null },
-  { x: 33, y: 11, pessoa: null },
+  { x: 13, y: 5, pessoa: "Rudi Reis" },
+  { x: 18, y: 5, pessoa: "Mari" },
+  { x: 23, y: 5, pessoa: null },
+  { x: 28, y: 5, pessoa: null },
+  { x: 13, y: 9, pessoa: null },
+  { x: 18, y: 9, pessoa: null },
+  { x: 23, y: 9, pessoa: null },
+  { x: 28, y: 9, pessoa: null },
 ];
 const MESAS_LIDERANCA = [
-  { x: 15, y: 22, pessoa: "Raphinha" },
-  { x: 21, y: 22, pessoa: "Testa" },
-  { x: 27, y: 22, pessoa: "Tati Arruda" },
-  { x: 33, y: 22, pessoa: "Bernard Malta" },
+  { x: 13, y: 18, pessoa: "Raphinha" },
+  { x: 18, y: 18, pessoa: "Testa" },
+  { x: 23, y: 18, pessoa: "Tati Arruda" },
+  { x: 28, y: 18, pessoa: "Bernard Malta" },
 ];
 
-const GONGO   = { x: 24, y: 17 };
-const PLACAR  = { x: 28, y: 17 };
-const SPAWN   = { x: 24, y: 20 };
+const GONGO   = { x: 19, y: 13 };
+const PLACAR  = { x: 23, y: 13 };
+const SPAWN   = { x: 20, y: 15 };
 
 // ---------------------------------------------------------------- TILES
 const PISO        = 725;   // piso interno principal
@@ -206,9 +205,9 @@ for (let y = 3; y < H - 1; y++) {
 }
 
 // 3. divisorias internas
-murar(COPA, [[11, 8], [11, 9]]);
-murar(SALA_GRANDE, [[11, 30], [11, 31]]);
-REUNIOES.forEach((r, i) => murar(r, [[38, r.y + 2], [38, r.y + 3]]));
+murar(COPA, [[10, 7], [10, 8]]);
+murar(SALA_GRANDE, [[10, 19], [10, 20]]);
+REUNIOES.forEach((r) => murar(r, [[32, r.y + 2], [32, r.y + 3]]));
 
 // 4. carpete cinza sob as areas de trabalho, como na sala do Gather
 retangulo(pisoAlt, { x: TIME_BLACK.x, y: TIME_BLACK.y, w: TIME_BLACK.w, h: TIME_BLACK.h }, PISO_ALT);
@@ -229,20 +228,20 @@ carimbar(moveis, QUADRO, SALA_GRANDE.x + 3, SALA_GRANDE.y - 1);
 // 7. copa: balcao, mesa de refeicao e sofa
 carimbar(moveis, BALCAO, COPA.x, COPA.y);
 carimbar(moveis, MESA_GRANDE, COPA.x + 4, COPA.y + 2);
-carimbar(moveis, SOFA, COPA.x + 3, COPA.y + 8);
-carimbar(moveis, MESA_CENTRO, COPA.x + 4, COPA.y + 10, { colide: false });
+carimbar(moveis, SOFA, COPA.x + 2, COPA.y + 6);
+carimbar(moveis, MESA_CENTRO, COPA.x + 5, COPA.y + 6, { colide: false });
 carimbar(moveis, PLANTA, COPA.x + 8, COPA.y + 1);
 
 // 8. corredor de cima: quadro, impressora, estantes e plantas
-carimbar(moveis, QUADRO, 16, 3);
-carimbar(moveis, QUADRO, 30, 3);
-carimbar(moveis, IMPRESSORA, 22, 3);
-carimbar(moveis, PLANTA, 13, 3);
-carimbar(moveis, PLANTA, 36, 3);
-carimbar(moveis, FAIXA, 24, 3, { colide: false });
+carimbar(moveis, QUADRO, 14, 3);
+carimbar(moveis, QUADRO, 27, 3);
+carimbar(moveis, IMPRESSORA, 20, 3);
+carimbar(moveis, PLANTA, 12, 3);
+carimbar(moveis, PLANTA, 30, 3);
+carimbar(moveis, FAIXA, 23, 3, { colide: false });
 
 // 9. plantas espalhadas pelo salao
-[[13, 14], [36, 14], [13, 29], [36, 29], [13, 19], [36, 19]].forEach(([x, y]) =>
+[[12, 12], [30, 12], [12, 25], [30, 25], [12, 16], [30, 16]].forEach(([x, y]) =>
   carimbar(moveis, PLANTA, x, y)
 );
 
@@ -268,12 +267,16 @@ retangulo(pisoAlt, { x: LIDERANCA.x, y: LIDERANCA.y + LIDERANCA.h - 2, w: 6, h: 
 // Objetos nomeados. O script do mapa acha cada um pelo nome e desenha a placa.
 const areas = [];
 let id = 1;
+// ATENCAO: `class: "area"` e obrigatorio.
+// Sem isso o WorkAdventure trata o objeto como decoracao solta e nenhum
+// WA.room.area.onEnter dispara — o script carrega mas nada acontece, sem
+// erro nenhum no console. Foi o que segurou o projeto por dois dias.
 const area = (nome, x, y, w, h, props = []) =>
   areas.push({
     id: id++,
     name: nome,
-    type: "",
-    class: "",
+    type: "area",
+    class: "area",
     x: x * 32, y: y * 32, width: w * 32, height: h * 32,
     visible: true, rotation: 0,
     properties: props,
@@ -303,7 +306,10 @@ area("sala-grande", SALA_GRANDE.x, SALA_GRANDE.y, SALA_GRANDE.w, SALA_GRANDE.h,
   [{ name: "silent", type: "bool", value: true }]);
 
 // ---------------------------------------------------------------- ARQUIVO
-const base = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "office.tmj"), "utf8"));
+// Lista de tilesets e versao do Tiled. Ficava sendo lida do office.tmj do
+// template, mas esse arquivo foi removido do repositorio — entao virou um
+// arquivo proprio, sem dependencia externa.
+const base = JSON.parse(fs.readFileSync(path.join(__dirname, "base.json"), "utf8"));
 
 const camada = (nome, data, extra = {}) => ({
   id: 0, name: nome, type: "tilelayer", visible: true, opacity: 1,
