@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marketing</title>
+<link rel="stylesheet" href="comum.css" />
+</head>
+<body>
+<div class="painel">
+  <div class="topo">
+    <div>
+      <p class="eyebrow">Gestão</p>
+      <p class="titulo">Marketing do mês</p>
+    </div>
+    <span class="demo" id="selo">exemplo</span>
+  </div>
+
+  <div>
+    <p class="eyebrow" style="margin-bottom:4px">Investido</p>
+    <div class="linha">
+      <span class="numero pequeno" id="investido">—</span>
+      <span class="pct ritmo" id="roas">—</span>
+    </div>
+    <div class="rotulo" style="margin-top:4px">retorno sobre investimento</div>
+  </div>
+
+  <div class="cartoes">
+    <div class="cartao"><div class="v" id="leads">—</div><div class="r">leads</div></div>
+    <div class="cartao"><div class="v" id="cpl">—</div><div class="r">custo por lead</div></div>
+    <div class="cartao"><div class="v" id="agend">—</div><div class="r">agendamentos</div></div>
+    <div class="cartao"><div class="v" id="cpa">—</div><div class="r">custo p/ agend.</div></div>
+  </div>
+
+  <div class="rodape">
+    <span>visível na sala de gestão</span>
+    <span id="atualizado">—</span>
+  </div>
+</div>
+
+<script type="module">
+import { buscar, ehDemo, reais, reaisCurto } from "./dados-demo.js";
+
+const $ = (id) => document.getElementById(id);
+
+async function pintar() {
+  const d = await buscar("marketing");
+
+  $("investido").textContent = reais(d.investido);
+  $("roas").textContent = d.roas.toFixed(2).replace(".", ",") + "x";
+  $("leads").textContent = d.leads.toLocaleString("pt-BR");
+  $("cpl").textContent = reais(d.cpl);
+  $("agend").textContent = d.agendamentos;
+  $("cpa").textContent = reais(d.custoAgendamento);
+
+  $("atualizado").textContent = new Date().toLocaleTimeString("pt-BR", {
+    hour: "2-digit", minute: "2-digit",
+  });
+  if (!ehDemo) $("selo").remove();
+}
+
+pintar();
+setInterval(pintar, 60000);
+</script>
+</body>
+</html>

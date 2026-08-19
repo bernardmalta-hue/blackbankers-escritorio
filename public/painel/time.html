@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Placar do time</title>
+<link rel="stylesheet" href="comum.css" />
+</head>
+<body>
+<div class="painel">
+  <div class="topo">
+    <div>
+      <p class="eyebrow">Time Black</p>
+      <p class="titulo">Produção do mês</p>
+    </div>
+    <span class="demo" id="selo">exemplo</span>
+  </div>
+
+  <div>
+    <div class="linha">
+      <span class="numero" id="mes-valor">—</span>
+      <span class="pct" id="mes-pct">—</span>
+    </div>
+    <div class="barra" id="mes-barra"><i style="width:0"></i></div>
+    <div class="linha" style="margin-top:5px">
+      <span class="rotulo">meta <span id="mes-meta">—</span></span>
+      <span class="rotulo" id="dias">—</span>
+    </div>
+  </div>
+
+  <div>
+    <p class="eyebrow" style="margin-bottom:4px">Hoje</p>
+    <div class="linha">
+      <span class="numero pequeno" id="dia-valor">—</span>
+      <span class="pct" id="dia-pct">—</span>
+    </div>
+    <div class="barra" id="dia-barra"><i style="width:0"></i></div>
+    <div class="rotulo" style="margin-top:5px">meta do dia <span id="dia-meta">—</span></div>
+  </div>
+
+  <div class="cartoes">
+    <div class="cartao"><div class="v" id="ticket">—</div><div class="r">ticket médio</div></div>
+    <div class="cartao"><div class="v" id="conv">—</div><div class="r">conversão</div></div>
+    <div class="cartao"><div class="v" id="vendas">—</div><div class="r">vendas</div></div>
+  </div>
+
+  <div class="rodape">
+    <span>Black Bankers</span>
+    <span id="atualizado">—</span>
+  </div>
+</div>
+
+<script type="module">
+import { buscar, ehDemo, reais, reaisCurto, pct, faixa } from "./dados-demo.js";
+
+const $ = (id) => document.getElementById(id);
+
+function barra(el, p, classe) {
+  el.className = "barra " + classe;
+  el.firstElementChild.style.width = Math.min(p, 100) + "%";
+}
+
+async function pintar() {
+  const d = await buscar("time");
+
+  const pMes = pct(d.mesValor, d.mesMeta);
+  $("mes-valor").textContent = reais(d.mesValor);
+  $("mes-pct").textContent = pMes + "%";
+  $("mes-pct").className = "pct " + faixa(pMes);
+  $("mes-meta").textContent = reaisCurto(d.mesMeta);
+  barra($("mes-barra"), pMes, faixa(pMes));
+  $("dias").textContent = d.diasUteis + "/" + d.diasTotais + " dias úteis";
+
+  const pDia = pct(d.diaValor, d.diaMeta);
+  $("dia-valor").textContent = reais(d.diaValor);
+  $("dia-pct").textContent = pDia + "%";
+  $("dia-pct").className = "pct " + faixa(pDia);
+  $("dia-meta").textContent = reais(d.diaMeta);
+  barra($("dia-barra"), pDia, faixa(pDia));
+
+  $("ticket").textContent = reaisCurto(d.ticket);
+  $("conv").textContent = d.conversao + "%";
+  $("vendas").textContent = d.vendasMes;
+
+  $("atualizado").textContent = new Date().toLocaleTimeString("pt-BR", {
+    hour: "2-digit", minute: "2-digit",
+  });
+  if (!ehDemo) $("selo").remove();
+}
+
+pintar();
+setInterval(pintar, 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+[
+  {
+    "area": "mesa-1",
+    "pessoa": "Rudi Reis",
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-2",
+    "pessoa": "Mari",
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-3",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-4",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-5",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-6",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-7",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-8",
+    "pessoa": null,
+    "time": "timeblack"
+  },
+  {
+    "area": "mesa-9",
+    "pessoa": "Raphinha",
+    "time": "lideranca"
+  },
+  {
+    "area": "mesa-10",
+    "pessoa": "Testa",
+    "time": "lideranca"
+  },
+  {
+    "area": "mesa-11",
+    "pessoa": "Tati Arruda",
+    "time": "lideranca"
+  },
+  {
+    "area": "mesa-12",
+    "pessoa": "Bernard Malta",
+    "time": "lideranca"
+  }
+]

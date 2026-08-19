@@ -11,7 +11,7 @@
  "version": "1.10",
  "type": "map",
  "nextlayerid": 13,
- "nextobjectid": 22,
+ "nextobjectid": 23,
  "tilesets": [
   {
    "columns": 6,
@@ -11707,159 +11707,291 @@
    "objects": [
     {
      "id": 1,
-     "name": "placa-timeblack-1",
+     "name": "mesa-1",
      "type": "",
      "class": "",
      "x": 480,
-     "y": 288,
+     "y": 160,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Rudi Reis"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 2,
-     "name": "placa-timeblack-2",
+     "name": "mesa-2",
      "type": "",
      "class": "",
      "x": 672,
-     "y": 288,
+     "y": 160,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Mari"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 3,
-     "name": "placa-timeblack-3",
+     "name": "mesa-3",
      "type": "",
      "class": "",
      "x": 864,
-     "y": 288,
+     "y": 160,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 4,
-     "name": "placa-timeblack-4",
+     "name": "mesa-4",
      "type": "",
      "class": "",
      "x": 1056,
-     "y": 288,
+     "y": 160,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 5,
-     "name": "placa-timeblack-5",
+     "name": "mesa-5",
      "type": "",
      "class": "",
      "x": 480,
-     "y": 480,
+     "y": 352,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 6,
-     "name": "placa-timeblack-6",
+     "name": "mesa-6",
      "type": "",
      "class": "",
      "x": 672,
-     "y": 480,
+     "y": 352,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 7,
-     "name": "placa-timeblack-7",
+     "name": "mesa-7",
      "type": "",
      "class": "",
      "x": 864,
-     "y": 480,
+     "y": 352,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 8,
-     "name": "placa-timeblack-8",
+     "name": "mesa-8",
      "type": "",
      "class": "",
      "x": 1056,
-     "y": 480,
+     "y": 352,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "timeblack"
+      }
+     ]
     },
     {
      "id": 9,
-     "name": "placa-lideranca-1",
+     "name": "mesa-9",
      "type": "",
      "class": "",
      "x": 480,
-     "y": 832,
+     "y": 704,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Raphinha"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "lideranca"
+      }
+     ]
     },
     {
      "id": 10,
-     "name": "placa-lideranca-2",
+     "name": "mesa-10",
      "type": "",
      "class": "",
      "x": 672,
-     "y": 832,
+     "y": 704,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Testa"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "lideranca"
+      }
+     ]
     },
     {
      "id": 11,
-     "name": "placa-lideranca-3",
+     "name": "mesa-11",
      "type": "",
      "class": "",
      "x": 864,
-     "y": 832,
+     "y": 704,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Tati Arruda"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "lideranca"
+      }
+     ]
     },
     {
      "id": 12,
-     "name": "placa-lideranca-4",
+     "name": "mesa-12",
      "type": "",
      "class": "",
      "x": 1056,
-     "y": 832,
+     "y": 704,
      "width": 128,
-     "height": 32,
+     "height": 160,
      "visible": true,
      "rotation": 0,
-     "properties": []
+     "properties": [
+      {
+       "name": "pessoa",
+       "type": "string",
+       "value": "Bernard Malta"
+      },
+      {
+       "name": "time",
+       "type": "string",
+       "value": "lideranca"
+      }
+     ]
     },
     {
      "id": 13,
@@ -11889,6 +12021,19 @@
     },
     {
      "id": 15,
+     "name": "painel-marketing",
+     "type": "",
+     "class": "",
+     "x": 416,
+     "y": 896,
+     "width": 192,
+     "height": 64,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 16,
      "name": "sala-reuniao-1",
      "type": "",
      "class": "",
@@ -11907,7 +12052,7 @@
      ]
     },
     {
-     "id": 16,
+     "id": 17,
      "name": "sala-reuniao-2",
      "type": "",
      "class": "",
@@ -11926,7 +12071,7 @@
      ]
     },
     {
-     "id": 17,
+     "id": 18,
      "name": "sala-reuniao-3",
      "type": "",
      "class": "",
@@ -11945,7 +12090,7 @@
      ]
     },
     {
-     "id": 18,
+     "id": 19,
      "name": "sala-reuniao-4",
      "type": "",
      "class": "",
@@ -11964,7 +12109,7 @@
      ]
     },
     {
-     "id": 19,
+     "id": 20,
      "name": "copa",
      "type": "",
      "class": "",
@@ -11977,7 +12122,7 @@
      "properties": []
     },
     {
-     "id": 20,
+     "id": 21,
      "name": "sala-grande",
      "type": "",
      "class": "",

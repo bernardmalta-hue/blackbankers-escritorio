@@ -34,13 +34,26 @@ const REUNIOES    = [
   { x: 39, y: 27, w: 10, h: 7 },
 ];
 
-// Onde cada pessoa senta. A placa individual nasce na linha logo abaixo.
+// Onde cada pessoa senta, e de quem e a mesa.
+//
+// `pessoa` precisa bater com o nome que a pessoa digita ao entrar no
+// WorkAdventure. E o que o script usa para decidir de quem e o painel
+// individual. Deixe em null enquanto nao souber — a mesa vira livre.
 const MESAS_TIME_BLACK = [
-  { x: 15, y: 5 }, { x: 21, y: 5 }, { x: 27, y: 5 }, { x: 33, y: 5 },
-  { x: 15, y: 11 }, { x: 21, y: 11 }, { x: 27, y: 11 }, { x: 33, y: 11 },
+  { x: 15, y: 5,  pessoa: "Rudi Reis" },
+  { x: 21, y: 5,  pessoa: "Mari" },
+  { x: 27, y: 5,  pessoa: null },
+  { x: 33, y: 5,  pessoa: null },
+  { x: 15, y: 11, pessoa: null },
+  { x: 21, y: 11, pessoa: null },
+  { x: 27, y: 11, pessoa: null },
+  { x: 33, y: 11, pessoa: null },
 ];
 const MESAS_LIDERANCA = [
-  { x: 15, y: 22 }, { x: 21, y: 22 }, { x: 27, y: 22 }, { x: 33, y: 22 },
+  { x: 15, y: 22, pessoa: "Raphinha" },
+  { x: 21, y: 22, pessoa: "Testa" },
+  { x: 27, y: 22, pessoa: "Tati Arruda" },
+  { x: 33, y: 22, pessoa: "Bernard Malta" },
 ];
 
 const GONGO   = { x: 24, y: 17 };
@@ -210,10 +223,22 @@ const area = (nome, x, y, w, h, props = []) =>
     properties: props,
   });
 
-MESAS_TIME_BLACK.forEach((m, i) => area(`placa-timeblack-${i + 1}`, m.x, m.y + 4, 4, 1));
-MESAS_LIDERANCA.forEach((m, i) => area(`placa-lideranca-${i + 1}`, m.x, m.y + 4, 4, 1));
+// Uma area por mesa. Chegar nela faz duas coisas no script: abre o painel
+// individual (so para o dono) e habilita a buzina.
+const texto = (nome, valor) => ({ name: nome, type: "string", value: valor });
+let nMesa = 0;
+[...MESAS_TIME_BLACK.map((m) => ({ ...m, time: "timeblack" })),
+ ...MESAS_LIDERANCA.map((m) => ({ ...m, time: "lideranca" }))].forEach((m) => {
+  nMesa++;
+  area(`mesa-${nMesa}`, m.x, m.y, 4, 5, [
+    texto("pessoa", m.pessoa || ""),
+    texto("time", m.time),
+  ]);
+});
+
 area("placar-time", PLACAR.x, PLACAR.y, 6, 2);
 area("gongo", GONGO.x, GONGO.y, 2, 2);
+area("painel-marketing", LIDERANCA.x, LIDERANCA.y + LIDERANCA.h - 2, 6, 2);
 REUNIOES.forEach((r, i) =>
   area(`sala-reuniao-${i + 1}`, r.x, r.y, r.w, r.h, [{ name: "silent", type: "bool", value: true }])
 );
@@ -266,6 +291,18 @@ mapa.nextlayerid = lid;
 const destino = path.join(__dirname, "..", "escritorio.tmj");
 fs.writeFileSync(destino, JSON.stringify(mapa, null, 1));
 
+// O script do mapa precisa saber de quem e cada mesa. Gerado aqui para que
+// PLANTA continue sendo a unica fonte de verdade.
+const mesas = [
+  ...MESAS_TIME_BLACK.map((m) => ({ ...m, time: "timeblack" })),
+  ...MESAS_LIDERANCA.map((m) => ({ ...m, time: "lideranca" })),
+].map((m, i) => ({ area: `mesa-${i + 1}`, pessoa: m.pessoa, time: m.time }));
+
+fs.writeFileSync(
+  path.join(__dirname, "..", "src", "mesas.json"),
+  JSON.stringify(mesas, null, 2)
+);
+
 const contar = (c) => c.filter(Boolean).length;
 console.log(`escrito: ${path.relative(process.cwd(), destino)}`);
 console.log(`grade:     ${W} x ${H} tiles  (${W * 32} x ${H * 32} px)`);
@@ -273,4 +310,4 @@ console.log(`piso:      ${contar(piso)}   piso alt: ${contar(pisoAlt)}`);
 console.log(`paredes:   ${contar(paredes)}`);
 console.log(`moveis:    ${contar(moveis)}`);
 console.log(`colisoes:  ${contar(colisoes)}`);
-console.log(`areas:     ${areas.length}  (${areas.filter((a) => a.name.startsWith("placa-")).length} placas individuais)`);
+console.log(`areas:     ${areas.length}  (${areas.filter((a) => a.name.startsWith("mesa-")).length} mesas)`);
