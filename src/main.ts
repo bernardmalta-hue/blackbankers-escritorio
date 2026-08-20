@@ -257,10 +257,8 @@ function ligarMesa(mesa: Mesa, eu: string, gestor: boolean) {
         { height: "44vh", width: "23vw" }
       );
     }
-    acao = WA.ui.displayActionMessage({
-      message: "Aperte ESPAÇO para avisar que você agendou",
-      callback: () => comemorarAgendamento(eu),
-    });
+    // Sem acao manual: agendamento e venda vem do dashboard. Dois caminhos
+    // para o mesmo evento fariam a sala anunciar a mesma coisa duas vezes.
   });
 
   WA.room.area.onLeave(mesa.area).subscribe(() => {
@@ -332,23 +330,6 @@ WA.onInit()
       agendamento: (quem: string) => comemorarAgendamento(quem),
       faixa: (valor: number) => faixaPorValor(valor),
     };
-
-
-    // Botao de agendar: e o evento que o pre-vendas dispara varias vezes por
-    // dia. Fica na barra porque exigir que a pessoa ande ate um lugar para
-    // registrar cada agendamento seria atrito demais.
-    try {
-      WA.ui.actionBar.addButton({
-        id: "agendei",
-        label: "Agendei",
-        bgColor: "#3fbf7f",
-        textColor: "#0d1a14",
-        toolTip: "Avisa a sala que você marcou uma reunião",
-        callback: () => comemorarAgendamento(eu),
-      });
-    } catch (e) {
-      console.warn("[Black Bankers] botao de agendamento indisponivel:", e);
-    }
 
     // 8. Liga no dashboard: agendamento e venda passam a comemorar sozinhos.
     ouvirEventos((e) => {
