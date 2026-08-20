@@ -1,62 +1,93 @@
 [
-  {
-    "area": "mesa-1",
-    "pessoa": "Rudi Reis",
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-2",
-    "pessoa": "Mari",
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-3",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-4",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-5",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-6",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-7",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-8",
-    "pessoa": null,
-    "time": "timeblack"
-  },
-  {
-    "area": "mesa-9",
-    "pessoa": "Raphinha",
-    "time": "lideranca"
-  },
-  {
-    "area": "mesa-10",
-    "pessoa": "Testa",
-    "time": "lideranca"
-  },
-  {
-    "area": "mesa-11",
-    "pessoa": "Tati Arruda",
-    "time": "lideranca"
-  },
-  {
-    "area": "mesa-12",
-    "pessoa": "Bernard Malta",
-    "time": "lideranca"
-  }
+ {
+  "area": "mesa-1",
+  "nomes": [
+   "Marcelo"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-2",
+  "nomes": [
+   "Giordanna",
+   "Gii"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-3",
+  "nomes": [
+   "Coutinho",
+   "W. Coutinho"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-4",
+  "nomes": [
+   "Bruninha",
+   "Bruna"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-5",
+  "nomes": [],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-6",
+  "nomes": [
+   "Rudi Reis",
+   "Rudi"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-7",
+  "nomes": [
+   "Julio",
+   "Julio Raphael"
+  ],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-8",
+  "nomes": [],
+  "time": "timeblack"
+ },
+ {
+  "area": "mesa-9",
+  "nomes": [
+   "Raphael Teles",
+   "Teles"
+  ],
+  "time": "lideranca"
+ },
+ {
+  "area": "mesa-10",
+  "nomes": [
+   "Raphael Amaral",
+   "Amaral",
+   "Raphinha"
+  ],
+  "time": "lideranca"
+ },
+ {
+  "area": "mesa-11",
+  "nomes": [
+   "Rafael Testa",
+   "Raphael Testa",
+   "Testa"
+  ],
+  "time": "lideranca"
+ },
+ {
+  "area": "mesa-12",
+  "nomes": [
+   "Bernard Malta",
+   "Bernard"
+  ],
+  "time": "lideranca"
+ }
 ]

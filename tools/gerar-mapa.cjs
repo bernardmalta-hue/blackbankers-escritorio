@@ -33,27 +33,34 @@ const REUNIOES    = [
   { x: 29, y: 17, w: 7, h: 6 },
 ];
 
-// Onde cada pessoa senta, e de quem e a mesa.
+// Onde cada pessoa senta.
 //
-// `pessoa` precisa bater com o nome que a pessoa digita ao entrar no
-// WorkAdventure. E o que o script usa para decidir de quem e o painel
-// individual. Deixe em null enquanto nao souber — a mesa vira livre.
+// `nomes` e a lista de grafias aceitas: a pessoa digita o nome que quiser
+// ao entrar no WorkAdventure, e nem sempre bate com o cadastro. Na sala ja
+// apareceu "W. Coutinho" para quem o banco chama de "Coutinho", e "Bruna"
+// para "Bruninha". Basta uma palavra bater.
+//
+// Lista vazia = mesa livre.
 const MESAS_TIME_BLACK = [
-  { x: 13, y: 5, pessoa: "Rudi Reis" },
-  { x: 17, y: 5, pessoa: "Mari" },
-  { x: 21, y: 5, pessoa: null },
-  { x: 25, y: 5, pessoa: null },
-  { x: 13, y: 8, pessoa: null },
-  { x: 17, y: 8, pessoa: null },
-  { x: 21, y: 8, pessoa: null },
-  { x: 25, y: 8, pessoa: null },
+  { x: 13, y: 5, nomes: ["Marcelo"] },
+  { x: 17, y: 5, nomes: ["Giordanna", "Gii"] },
+  { x: 21, y: 5, nomes: ["Coutinho", "W. Coutinho"] },
+  { x: 25, y: 5, nomes: ["Bruninha", "Bruna"] },
+  { x: 13, y: 8, nomes: [] },
+  { x: 17, y: 8, nomes: ["Rudi Reis", "Rudi"] },
+  { x: 21, y: 8, nomes: ["Julio", "Julio Raphael"] },
+  { x: 25, y: 8, nomes: [] },
 ];
 const MESAS_LIDERANCA = [
-  { x: 13, y: 18, pessoa: "Raphinha" },
-  { x: 17, y: 18, pessoa: "Testa" },
-  { x: 21, y: 18, pessoa: "Tati Arruda" },
-  { x: 25, y: 18, pessoa: "Bernard Malta" },
+  { x: 13, y: 18, nomes: ["Raphael Teles", "Teles"] },
+  { x: 17, y: 18, nomes: ["Raphael Amaral", "Amaral", "Raphinha"] },
+  { x: 21, y: 18, nomes: ["Rafael Testa", "Raphael Testa", "Testa"] },
+  { x: 25, y: 18, nomes: ["Bernard Malta", "Bernard"] },
 ];
+
+// Quem enxerga o painel individual de qualquer mesa, nao so o proprio.
+// Sao os role='gestao' do dashboard.
+const GESTAO = ["Bernard Malta", "Rafael Testa", "Raphael Amaral", "Raphael Teles"];
 
 const GONGO   = { x: 17, y: 13 };
 const PLACAR  = { x: 21, y: 13 };
@@ -295,7 +302,7 @@ let nMesa = 0;
  ...MESAS_LIDERANCA.map((m) => ({ ...m, time: "lideranca" }))].forEach((m) => {
   nMesa++;
   area(`mesa-${nMesa}`, m.x, m.y, 4, 5, [
-    texto("pessoa", m.pessoa || ""),
+    texto("nomes", (m.nomes || []).join("|")),
     texto("time", m.time),
   ]);
 });
@@ -375,7 +382,16 @@ const mesas = [
 
 fs.writeFileSync(
   path.join(__dirname, "..", "src", "mesas.json"),
-  JSON.stringify(mesas, null, 2)
+  JSON.stringify(
+    [...MESAS_TIME_BLACK.map((m) => ({ ...m, time: "timeblack" })),
+     ...MESAS_LIDERANCA.map((m) => ({ ...m, time: "lideranca" }))]
+      .map((m, i) => ({ area: `mesa-${i + 1}`, nomes: m.nomes || [], time: m.time })),
+    null, 1
+  )
+);
+fs.writeFileSync(
+  path.join(__dirname, "..", "src", "gestao.json"),
+  JSON.stringify(GESTAO, null, 1)
 );
 
 const contar = (c) => c.filter(Boolean).length;

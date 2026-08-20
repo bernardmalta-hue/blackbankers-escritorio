@@ -6085,9 +6085,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Rudi Reis"
+       "value": "Marcelo"
       },
       {
        "name": "time",
@@ -6109,9 +6109,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Mari"
+       "value": "Giordanna|Gii"
       },
       {
        "name": "time",
@@ -6133,9 +6133,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": ""
+       "value": "Coutinho|W. Coutinho"
       },
       {
        "name": "time",
@@ -6157,9 +6157,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": ""
+       "value": "Bruninha|Bruna"
       },
       {
        "name": "time",
@@ -6181,7 +6181,7 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
        "value": ""
       },
@@ -6205,9 +6205,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": ""
+       "value": "Rudi Reis|Rudi"
       },
       {
        "name": "time",
@@ -6229,9 +6229,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": ""
+       "value": "Julio|Julio Raphael"
       },
       {
        "name": "time",
@@ -6253,7 +6253,7 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
        "value": ""
       },
@@ -6277,9 +6277,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Raphinha"
+       "value": "Raphael Teles|Teles"
       },
       {
        "name": "time",
@@ -6301,9 +6301,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Testa"
+       "value": "Raphael Amaral|Amaral|Raphinha"
       },
       {
        "name": "time",
@@ -6325,9 +6325,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Tati Arruda"
+       "value": "Rafael Testa|Raphael Testa|Testa"
       },
       {
        "name": "time",
@@ -6349,9 +6349,9 @@
      "rotation": 0,
      "properties": [
       {
-       "name": "pessoa",
+       "name": "nomes",
        "type": "string",
-       "value": "Bernard Malta"
+       "value": "Bernard Malta|Bernard"
       },
       {
        "name": "time",

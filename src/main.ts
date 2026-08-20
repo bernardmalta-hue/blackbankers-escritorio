@@ -16,13 +16,14 @@
 
 import { bootstrapExtra } from "@workadventure/scripting-api-extra";
 import mesas from "./mesas.json";
+import gestao from "./gestao.json";
 import {
   sequenciaVenda, duracaoVenda, sequenciaAgendamento, DURACAO_AGENDAMENTO,
   faixaPorValor, NOME_FAIXA, type Etapa,
 } from "./escalas";
 import { prepararConfete, soltarConfete } from "./confete";
 
-type Mesa = { area: string; pessoa: string | null; time: string };
+type Mesa = { area: string; nomes: string[]; time: string };
 
 // A raiz do mapa so pode ser lida depois do onInit. O script roda a partir
 // de assets/, entao caminho relativo apontaria para o lugar errado.
@@ -159,29 +160,61 @@ function celebrarRico(d: ComemoracaoRica) {
 
 // -------------------------------------------------------------- identidade
 
-// "Bernard" tem que casar com "Bernard Malta". Compara sem acento, sem
-// diferenca de maiuscula, e aceita que um nome seja o comeco do outro.
+/*
+ * Quem e quem.
+ *
+ * A pessoa digita o nome que quiser ao entrar, e raramente e igual ao
+ * cadastro: ja apareceu "W. Coutinho" para "Coutinho" e "Bruna" para
+ * "Bruninha". Entao comparamos palavra a palavra, sem acento.
+ *
+ * O porem: existem tres Raphaeis no time — Teles, Amaral e Testa. Casar
+ * por qualquer palavra abriria o painel do Amaral para o Teles. Por isso
+ * so valem as palavras que identificam UMA pessoa: "raphael" aparece em
+ * tres mesas e e descartada; "teles", "amaral" e "testa" identificam.
+ */
 const normalizar = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-function mesmaPessoa(dono: string | null, jogador: string): boolean {
-  if (!dono || !jogador) return false;
-  const a = normalizar(dono);
-  const b = normalizar(jogador);
-  return a === b || a.startsWith(b + " ") || b.startsWith(a + " ");
+const palavras = (s: string): string[] =>
+  normalizar(s).split(/[^a-z0-9]+/).filter((p) => p.length >= 3);
+
+const quantasMesas = new Map<string, number>();
+(mesas as Mesa[]).forEach((m) =>
+  new Set(m.nomes.flatMap(palavras)).forEach((p) =>
+    quantasMesas.set(p, (quantasMesas.get(p) ?? 0) + 1)
+  )
+);
+
+const distintivas = (m: Mesa): Set<string> =>
+  new Set(m.nomes.flatMap(palavras).filter((p) => quantasMesas.get(p) === 1));
+
+function mesmaPessoa(m: Mesa, jogador: string): boolean {
+  if (!m.nomes.length || !jogador) return false;
+  const minhas = distintivas(m);
+  return palavras(jogador).some((p) => minhas.has(p));
+}
+
+/* Gestao ve o painel de qualquer mesa, nao so o proprio. */
+function ehGestao(jogador: string): boolean {
+  const meu = palavras(jogador);
+  return (gestao as string[]).some((g) => {
+    const dele = palavras(g).filter((p) => quantasMesas.get(p) === 1);
+    return dele.some((p) => meu.includes(p));
+  });
 }
 
 // -------------------------------------------------------------------- mesas
 
-function ligarMesa(mesa: Mesa, eu: string) {
-  const minha = mesmaPessoa(mesa.pessoa, eu);
+function ligarMesa(mesa: Mesa, eu: string, gestor: boolean) {
+  const minha = mesmaPessoa(mesa, eu);
+  const podeVer = minha || (gestor && mesa.nomes.length > 0);
   let acao: { remove: () => void } | undefined;
 
   WA.room.area.onEnter(mesa.area).subscribe(() => {
-    if (minha) {
+    if (podeVer) {
       abrirPainel(
         "individual",
-        `individual.html?nome=${encodeURIComponent(eu)}`,
+        `individual.html?nome=${encodeURIComponent(mesa.nomes[0] ?? eu)}`,
         { vertical: "middle", horizontal: "right" },
         { height: "44vh", width: "23vw" }
       );
@@ -193,7 +226,7 @@ function ligarMesa(mesa: Mesa, eu: string) {
   });
 
   WA.room.area.onLeave(mesa.area).subscribe(() => {
-    if (minha) fecharPainel("individual");
+    if (podeVer) fecharPainel("individual");
     acao?.remove();
     acao = undefined;
   });
@@ -245,7 +278,9 @@ WA.onInit()
     });
 
     // 5. Cada mesa
-    (mesas as Mesa[]).forEach((m) => ligarMesa(m, eu));
+    const gestor = ehGestao(eu);
+    console.info("[Black Bankers]", eu, gestor ? "(gestão: vê todos os painéis)" : "(vê só o próprio painel)");
+    (mesas as Mesa[]).forEach((m) => ligarMesa(m, eu, gestor));
 
     // 6. Comemoracao disparada por outra pessoa
     WA.event.on(EVENTO_RICO).subscribe((evento) => celebrarRico(evento.data as ComemoracaoRica));
