@@ -23,6 +23,8 @@ export type EventoEscritorio = {
   cor: string | null;
   caricatura_url: string | null;
   valor: number | null;
+  quem_prevendas: string | null;
+  caricatura_prevendas: string | null;
   appointment_id: number | null;
   criado_em: string;
 };

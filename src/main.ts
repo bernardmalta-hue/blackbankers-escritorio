@@ -154,10 +154,12 @@ async function abrirComemoracao(e: EventoEscritorio, faixa: string, ms: number) 
     cor: e.cor ?? "#C9A227",
     cara: e.caricatura_url ?? "",
     faixa,
+    prevendas: e.quem_prevendas ?? "",
+    carapre: e.caricatura_prevendas ?? "",
   });
   fecharPainel("comemoracao");
   await abrirPainel("comemoracao", "comemoracao.html?" + p.toString(),
-    { vertical: "top", horizontal: "middle" }, { height: "27vh", width: "72vw" });
+    { vertical: "top", horizontal: "middle" }, { height: "34vh", width: "74vw" });
   window.setTimeout(() => fecharPainel("comemoracao"), ms);
 }
 
