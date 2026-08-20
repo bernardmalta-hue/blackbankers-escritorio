@@ -17,11 +17,13 @@
 import { bootstrapExtra } from "@workadventure/scripting-api-extra";
 import mesas from "./mesas.json";
 import gestao from "./gestao.json";
+import pontos from "./pontos.json";
 import {
   sequenciaVenda, duracaoVenda, sequenciaAgendamento, DURACAO_AGENDAMENTO,
   faixaPorValor, NOME_FAIXA, type Etapa,
 } from "./escalas";
 import { prepararConfete, soltarConfete } from "./confete";
+import { ouvirEventos, type EventoEscritorio } from "./supabase";
 
 type Mesa = { area: string; nomes: string[]; time: string };
 
@@ -138,6 +140,40 @@ export async function comemorarAgendamento(quem: string) {
   };
   WA.event.broadcast(EVENTO_RICO, dados);
   celebrarRico(dados);
+}
+
+/*
+ * Abre a faixa visual no topo. Fica so o tempo da comemoracao e some — a
+ * metade de baixo da tela continua livre para andar enquanto isso.
+ */
+async function abrirComemoracao(e: EventoEscritorio, faixa: string, ms: number) {
+  const p = new URLSearchParams({
+    tipo: e.tipo,
+    quem: e.quem,
+    valor: String(e.valor ?? 0),
+    cor: e.cor ?? "#C9A227",
+    cara: e.caricatura_url ?? "",
+    faixa,
+  });
+  fecharPainel("comemoracao");
+  await abrirPainel("comemoracao", "comemoracao.html?" + p.toString(),
+    { vertical: "top", horizontal: "middle" }, { height: "27vh", width: "72vw" });
+  window.setTimeout(() => fecharPainel("comemoracao"), ms);
+}
+
+/* Evento vindo do dashboard: e a mesma venda que a TV anuncia. */
+function celebrarDoDashboard(e: EventoEscritorio) {
+  const posicao = { x: pontos.gongo.x, y: pontos.gongo.y };
+  if (e.tipo === "agendamento") {
+    tocarSequencia(sequenciaAgendamento());
+    soltarConfete(posicao.x, posicao.y);
+    abrirComemoracao(e, "pequeno", DURACAO_AGENDAMENTO);
+    return;
+  }
+  const { faixa, etapas } = sequenciaVenda(e.valor ?? 0);
+  tocarSequencia(etapas);
+  soltarConfete(posicao.x, posicao.y);
+  abrirComemoracao(e, faixa, duracaoVenda(faixa));
 }
 
 function celebrarRico(d: ComemoracaoRica) {
@@ -312,10 +348,24 @@ WA.onInit()
       console.warn("[Black Bankers] botao de agendamento indisponivel:", e);
     }
 
+    // 8. Liga no dashboard: agendamento e venda passam a comemorar sozinhos.
+    ouvirEventos((e) => {
+      console.info("[Black Bankers] evento do dashboard:", e.tipo, e.quem, e.valor ?? "");
+      celebrarDoDashboard(e);
+    });
+
     prepararConfete().then((ok) =>
       console.info("[Black Bankers] confete", ok ? "pronto" : "indisponivel")
     );
 
+
+    // 9. Camera: sem isto o mapa inteiro cabe na tela e o personagem fica
+    //    minusculo. A largura menor que a altura desloca o foco para a
+    //    direita, compensando a barra lateral que cobre o quarto esquerdo.
+    WA.player.getPosition().then((p) =>
+      WA.camera.set(Math.round(p.x), Math.round(p.y), 640, 420, false, true)
+    ).catch(() => undefined);
+    WA.camera.followPlayer(true);
 
     bootstrapExtra()
       .then(() => console.info("[Black Bankers] scripting api extra pronta"))
