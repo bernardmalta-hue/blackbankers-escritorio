@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Comemoração</title>
+<style>
+  /* Faixa no topo da tela. Fundo transparente de proposito: o jogo continua
+     visivel atras, e a metade de baixo fica livre para andar. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: transparent; overflow: hidden;
+    font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; }
+
+  .palco { position: relative; height: 100%; display: flex; align-items: center;
+    justify-content: center; gap: 22px; }
+
+  .fundo { position: absolute; inset: 0; border-radius: 0 0 18px 18px;
+    background: linear-gradient(180deg, var(--cor) 0%, rgba(11,14,12,.92) 78%, transparent 100%);
+    opacity: 0; transition: opacity .45s ease; }
+  .palco.entrou .fundo { opacity: .93; }
+
+  .cara { position: relative; width: 132px; height: 132px; flex: none;
+    border-radius: 50%; border: 3px solid rgba(255,255,255,.85);
+    background: rgba(0,0,0,.35) center/cover no-repeat;
+    transform: scale(.4) rotate(-8deg); opacity: 0;
+    transition: transform .5s cubic-bezier(.2,1.5,.4,1), opacity .4s ease; }
+  .palco.entrou .cara { transform: scale(1) rotate(0); opacity: 1; }
+  .palco.tambor .cara { animation: pulsa .58s ease-in-out infinite; }
+  @keyframes pulsa { 0%,100% { transform: scale(1); } 50% { transform: scale(1.09); } }
+
+  .texto { position: relative; z-index: 1; color: #fff; min-width: 0; }
+  .rotulo { font-size: 13px; letter-spacing: .22em; text-transform: uppercase;
+    opacity: .82; margin-bottom: 2px; }
+  .nome { font-size: 38px; font-weight: 600; letter-spacing: -.02em; line-height: 1.05;
+    text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+  .valor { font-size: 52px; font-weight: 700; letter-spacing: -.03em; line-height: 1.05;
+    font-variant-numeric: tabular-nums; color: #ffdf80;
+    text-shadow: 0 3px 20px rgba(0,0,0,.7); opacity: 0; transform: translateY(14px);
+    transition: opacity .35s ease, transform .45s cubic-bezier(.2,1.5,.4,1); }
+  .palco.revelado .valor { opacity: 1; transform: translateY(0); }
+
+  .suspense { font-size: 46px; font-weight: 700; color: rgba(255,255,255,.5);
+    letter-spacing: .1em; }
+  .palco.revelado .suspense { display: none; }
+
+  .flash { position: absolute; inset: 0; background: #ffdf80; opacity: 0;
+    pointer-events: none; }
+  .palco.flash .flash { animation: clarao .55s ease-out; }
+  @keyframes clarao { 0% { opacity: .85; } 100% { opacity: 0; } }
+
+  .confete { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .confete i { position: absolute; top: -8%; width: 8px; height: 13px; border-radius: 2px;
+    animation: cai linear forwards; }
+  @keyframes cai {
+    to { transform: translateY(115vh) rotate(720deg); opacity: .1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cara, .valor, .fundo { transition: none; }
+    .palco.tambor .cara { animation: none; }
+    .confete { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="palco" id="palco">
+  <div class="fundo"></div>
+  <div class="flash"></div>
+  <div class="cara" id="cara"></div>
+  <div class="texto">
+    <p class="rotulo" id="rotulo">—</p>
+    <p class="nome" id="nome">—</p>
+    <p class="suspense" id="suspense">R$ ? ? ?</p>
+    <p class="valor" id="valor"></p>
+  </div>
+  <div class="confete" id="confete"></div>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const tipo = q.get("tipo") || "venda";
+const quem = q.get("quem") || "Alguém";
+const valor = Number(q.get("valor") || 0);
+const cor = q.get("cor") || "#C9A227";
+const cara = q.get("cara") || "";
+const faixa = q.get("faixa") || "pequeno";
+
+const palco = document.getElementById("palco");
+palco.style.setProperty("--cor", cor);
+document.getElementById("nome").textContent = quem;
+if (cara) document.getElementById("cara").style.backgroundImage = `url("${cara}")`;
+
+// Mesmos tempos do dashboard: o tambor e o que escala.
+const MS_CAIXA = 3000;
+const MS_TAMBOR = { pequeno: 3000, medio: 7000, grande: 10000, epico: 10000, lendario: 10000 };
+const QTD_CONFETE = { pequeno: 10, medio: 25, grande: 40, epico: 60, lendario: 100 };
+
+const brl = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+function confete(qtd, cores) {
+  const alvo = document.getElementById("confete");
+  for (let i = 0; i < qtd; i++) {
+    const p = document.createElement("i");
+    p.style.left = Math.random() * 100 + "%";
+    p.style.background = cores[Math.floor(Math.random() * cores.length)];
+    p.style.animationDuration = 2.2 + Math.random() * 2.6 + "s";
+    p.style.animationDelay = Math.random() * 1.2 + "s";
+    alvo.appendChild(p);
+  }
+}
+
+function contarAte(alvo, fim, ms) {
+  const t0 = performance.now();
+  const passo = (t) => {
+    const p = Math.min(1, (t - t0) / ms);
+    const suave = 1 - Math.pow(1 - p, 3);
+    alvo.textContent = brl(Math.round(fim * suave));
+    if (p < 1) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
+
+if (tipo === "agendamento") {
+  document.getElementById("rotulo").textContent = "Reunião agendada";
+  document.getElementById("suspense").remove();
+  requestAnimationFrame(() => palco.classList.add("entrou"));
+  confete(18, ["#3fbf7f", "#7fe3b0", "#ffffff"]);
+} else {
+  document.getElementById("rotulo").textContent =
+    { pequeno: "Venda", medio: "Boa venda", grande: "Venda grande",
+      epico: "Venda épica", lendario: "Venda lendária" }[faixa] || "Venda";
+
+  requestAnimationFrame(() => palco.classList.add("entrou"));
+
+  // etapa do tambor: caricatura pulsa, valor continua escondido
+  setTimeout(() => palco.classList.add("tambor"), MS_CAIXA);
+
+  // etapa da buzina: revela o valor
+  setTimeout(() => {
+    palco.classList.remove("tambor");
+    palco.classList.add("revelado");
+    if (faixa === "lendario" || faixa === "epico") palco.classList.add("flash");
+    contarAte(document.getElementById("valor"), valor, 1400);
+    confete(QTD_CONFETE[faixa] || 20, ["#C9A227", "#E4C766", "#FFD93D", "#ffffff"]);
+  }, MS_CAIXA + (MS_TAMBOR[faixa] || 3000));
+}
+</script>
+</body>
+</html>
