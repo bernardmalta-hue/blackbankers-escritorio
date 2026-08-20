@@ -16,18 +16,18 @@
 
 import { bootstrapExtra } from "@workadventure/scripting-api-extra";
 import mesas from "./mesas.json";
-import { FAMILIAS, familiaEscolhida, guardarEscolha, proximaFamilia, sortearArquivo, type Familia } from "./sons";
-import { sequenciaVenda, duracaoTotal, faixaPorValor, NOME_FAIXA, AGENDAMENTO, type Etapa } from "./escalas";
+import {
+  sequenciaVenda, duracaoVenda, sequenciaAgendamento, DURACAO_AGENDAMENTO,
+  faixaPorValor, NOME_FAIXA, type Etapa,
+} from "./escalas";
 import { prepararConfete, soltarConfete } from "./confete";
 
 type Mesa = { area: string; pessoa: string | null; time: string };
-type Comemoracao = { quem: string; time: string; arquivo: string };
 
 // A raiz do mapa so pode ser lida depois do onInit. O script roda a partir
 // de assets/, entao caminho relativo apontaria para o lugar errado.
 let RAIZ = "";
 
-const EVENTO = "black-bankers-comemoracao";
 const EVENTO_RICO = "black-bankers-venda";
 
 type ComemoracaoRica = {
@@ -39,7 +39,6 @@ type ComemoracaoRica = {
   x: number; // em tiles, para o confete cair em volta de quem comemorou
   y: number;
 };
-const DURACAO_FAIXA = 9000;
 
 // ------------------------------------------------------------------ paineis
 
@@ -88,24 +87,6 @@ function tocar(arquivo: string, volume = 0.55) {
   audio.play({ volume });
 }
 
-function celebrar(dados: Comemoracao) {
-  tocar(dados.arquivo);
-
-  if (faixaAberta) return;
-  faixaAberta = true;
-  WA.ui.banner.openBanner({
-    id: "comemoracao",
-    text: `${dados.quem} bateu o gongo`,
-    bgColor: "#e8b64c",
-    textColor: "#14120e",
-    closable: true,
-  });
-  window.setTimeout(() => {
-    WA.ui.banner.closeBanner();
-    faixaAberta = false;
-  }, DURACAO_FAIXA);
-}
-
 /* getPosition devolve pixels; o mapa raciocina em tiles de 32. */
 async function minhaPosicaoEmTiles(): Promise<{ x: number; y: number }> {
   try {
@@ -136,7 +117,7 @@ export async function comemorarVenda(quem: string, valor: number) {
     tipo: "venda",
     titulo: `${NOME_FAIXA[faixa]} — ${quem}`,
     etapas,
-    duracao: duracaoTotal(faixa),
+    duracao: duracaoVenda(faixa),
     ...onde,
   };
   WA.event.broadcast(EVENTO_RICO, dados);
@@ -150,8 +131,8 @@ export async function comemorarAgendamento(quem: string) {
     quem: quem || "Alguém",
     tipo: "agendamento",
     titulo: `${quem} agendou uma reunião`,
-    etapas: [AGENDAMENTO],
-    duracao: 5000,
+    etapas: sequenciaAgendamento(),
+    duracao: DURACAO_AGENDAMENTO,
     ...onde,
   };
   WA.event.broadcast(EVENTO_RICO, dados);
@@ -174,13 +155,6 @@ function celebrarRico(d: ComemoracaoRica) {
     WA.ui.banner.closeBanner();
     faixaAberta = false;
   }, d.duracao);
-}
-
-function comemorar(quem: string, time: string) {
-  // sorteia na hora e manda o arquivo junto, para todos ouvirem o mesmo
-  const dados: Comemoracao = { quem: quem || "Alguém", time, arquivo: sortearArquivo(familiaEscolhida()) };
-  WA.event.broadcast(EVENTO, dados);
-  celebrar(dados); // quem tocou tambem ve, sem esperar o retorno do servidor
 }
 
 // -------------------------------------------------------------- identidade
@@ -213,8 +187,8 @@ function ligarMesa(mesa: Mesa, eu: string) {
       );
     }
     acao = WA.ui.displayActionMessage({
-      message: `Aperte ESPAÇO para comemorar (${familiaEscolhida().nome})`,
-      callback: () => comemorar(eu, mesa.time),
+      message: "Aperte ESPAÇO para avisar que você agendou",
+      callback: () => comemorarAgendamento(eu),
     });
   });
 
@@ -261,8 +235,8 @@ WA.onInit()
     let acaoGongo: { remove: () => void } | undefined;
     WA.room.area.onEnter("gongo").subscribe(() => {
       acaoGongo = WA.ui.displayActionMessage({
-        message: `Aperte ESPAÇO para bater o gongo (${familiaEscolhida().nome})`,
-        callback: () => comemorar(eu, "sala"),
+        message: "Aperte ESPAÇO para bater o gongo",
+        callback: () => comemorarAgendamento(eu),
       });
     });
     WA.room.area.onLeave("gongo").subscribe(() => {
@@ -274,7 +248,6 @@ WA.onInit()
     (mesas as Mesa[]).forEach((m) => ligarMesa(m, eu));
 
     // 6. Comemoracao disparada por outra pessoa
-    WA.event.on(EVENTO).subscribe((evento) => celebrar(evento.data as Comemoracao));
     WA.event.on(EVENTO_RICO).subscribe((evento) => celebrarRico(evento.data as ComemoracaoRica));
 
     // Ganchos para o dia em que o Supabase estiver ligado. Por enquanto dao
@@ -287,26 +260,6 @@ WA.onInit()
       faixa: (valor: number) => faixaPorValor(valor),
     };
 
-    // 7. Botao para escolher o som: cada clique passa para o proximo da lista
-    //    e toca uma previa, para a pessoa ouvir antes de decidir.
-    const botaoSom = (familia: Familia) => {
-      try {
-        WA.ui.actionBar.addButton({
-          id: "escolher-som",
-          label: `Som: ${familia.nome}`,
-          callback: () => {
-            const novo = proximaFamilia(familiaEscolhida());
-            guardarEscolha(novo.id);
-            tocar(sortearArquivo(novo), 0.4); // previa, para ouvir antes de decidir
-            WA.ui.actionBar.removeButton("escolher-som");
-            botaoSom(novo);
-          },
-        });
-      } catch (e) {
-        console.warn("[Black Bankers] barra de acao indisponivel:", e);
-      }
-    };
-    botaoSom(familiaEscolhida());
 
     // Botao de agendar: e o evento que o pre-vendas dispara varias vezes por
     // dia. Fica na barra porque exigir que a pessoa ande ate um lugar para
@@ -328,9 +281,6 @@ WA.onInit()
       console.info("[Black Bankers] confete", ok ? "pronto" : "indisponivel")
     );
 
-    console.info(
-      "[Black Bankers]", FAMILIAS.length, "familias de som | atual:", familiaEscolhida().nome
-    );
 
     bootstrapExtra()
       .then(() => console.info("[Black Bankers] scripting api extra pronta"))
